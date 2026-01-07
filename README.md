@@ -35,7 +35,7 @@ https://vitrixlabph.pythonanywhere.com/api/products
 
 ## 📁 Project Structure
 ```
-├── main.py / flask_app.py # Main Flask app with Products Service logic
+├── app.py / flask_app.py # Main Flask app with Products Service logic
 ├── requirements.txt # Dependencies
 └── README.md
 ```
