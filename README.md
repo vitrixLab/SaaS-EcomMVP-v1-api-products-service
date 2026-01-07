@@ -1,184 +1,192 @@
-# 🧩 E-Commerce MVP – Products API (Microservice)
+🧩 E-Commerce MVP – Products API (Microservice)
 
-A **simple, API-first ecommerce Products microservice** built with **FastAPI**, designed as part of a **headless / SaaS commerce architecture**.
+A headless Products microservice built with Flask, designed as part of a SaaS / headless ecommerce architecture.
 
-This service exposes product-related APIs only.  
-There is **no frontend**, **no storefront**, and **no hosting of user applications**.
+This service is API-only.
+It stores products temporarily in-memory and asynchronously persists them to a database service.
+Users consume this API from their own frontends or web apps.
 
-Users consume this API from their own applications and hosting environments.
+🚀 Live Demo (Render / PythonAnywhere)
 
----
+Base URL (Products Service):
 
-## 🚀 Live Demo (Render)
+https://your-products-service.onrender.com
 
-**Base URL:**  
-https://saas-ecommvp-v1-api-products-service.onrender.com
 
----
+Database Service URL:
 
-## 📦 Features
+https://vitrixlabph.pythonanywhere.com/api/products
 
-- API-only (headless)
-- Microservice architecture
-- FastAPI + Pydantic validation
-- In-memory storage (for MVP testing)
-- Ready for PostgreSQL upgrade
-- Easy to test with `curl`
+📦 Features
 
----
+Fast in-memory cache for instant API responses
 
-## 📁 Project Structure
+Async database persistence using background threads
 
-```text
+Retry logic for reliability
+
+Cache inspection and manual sync endpoints (/cache/stats, /cache/sync)
+
+Health check endpoint (/health)
+
+Filtered list and limit query parameters
+
+Logging for operations, background tasks, and errors
+
+CORS enabled for cross-origin requests
+
+📁 Project Structure
 .
-├── main.py
-├── requirements.txt
+├── main.py / flask_app.py      # Main Flask app with Products Service logic
+├── requirements.txt            # Dependencies
 └── README.md
-```
 
----
+🛠 Tech Stack
 
-## 🛠 Tech Stack
+Python 3.10+
 
-- **Python 3.10+**
-- **FastAPI**
-- **Uvicorn**
-- **Pydantic**
+Flask
 
----
+Requests (for DB API calls)
 
-## 🔌 API Endpoints
+SQLite (optional, in DB service)
 
-### ➕ Create Product
+Threading for async persistence
 
-`POST /products`
+🔌 API Endpoints
+➕ Create Product
 
-**Request Body**
-```json
+POST /products
+
+Request Body
+
 {
   "name": "T-Shirt",
   "type": "physical",
-  "metadata": {
-    "brand": "Test Brand",
-    "color": "black"
-  }
+  "metadata": {"brand": "Test Brand"}
 }
-```
 
-**Response**
-```json
+
+Response
+
 {
-  "id": "prod_871e2cfe",
+  "id": "prod_abcdef1234",
   "name": "T-Shirt",
   "type": "physical",
-  "metadata": {
-    "brand": "Test Brand",
-    "color": "black"
-  }
+  "metadata": {"brand": "Test Brand"},
+  "created_at": "2026-01-07T14:00:00"
 }
-```
 
----
 
-### 📄 List All Products
+Stores product in cache immediately
 
-`GET /products`
+Persists asynchronously to DB service
 
-**Response**
-```json
+📄 List Products
+
+GET /products
+
+Optional query parameters:
+
+type → filter by product type
+
+limit → maximum number of products returned (default 100)
+
+Response
+
 [
   {
-    "id": "prod_871e2cfe",
+    "id": "prod_abcdef1234",
     "name": "T-Shirt",
     "type": "physical",
-    "metadata": {
-      "brand": "Test Brand"
-    }
+    "metadata": {"brand": "Test Brand"},
+    "created_at": "2026-01-07T14:00:00"
   }
 ]
-```
 
----
+🔍 Get Product by ID
 
-### 🔍 Get Product by ID
+GET /products/{product_id}
 
-`GET /products/{product_id}`
+Looks in cache first, optionally fetches from DB service if missing
 
-**Example**
-```text
-GET /products/prod_871e2cfe
-```
+❌ Delete Product
 
----
+DELETE /products/{product_id}
 
-## 🧪 CURL Testing (Windows CMD)
+Deletes from cache immediately
 
-### Create Product
-```cmd
-curl -X POST https://saas-ecommvp-v1-api-products-service.onrender.com/products -H "Content-Type: application/json" -d "{\"name\":\"T-Shirt\",\"metadata\":{\"brand\":\"Test Brand\"}}"
-```
+Async deletes from DB service
 
-### List Products
-```cmd
-curl https://saas-ecommvp-v1-api-products-service.onrender.com/products
-```
+🧪 Cache & Health Endpoints
 
-### Get Single Product
-```cmd
-curl https://saas-ecommvp-v1-api-products-service.onrender.com/products/prod_871e2cfe
-```
+GET /health → checks service health + DB connectivity
 
----
+GET /cache/stats → cache statistics and memory usage
 
-## ⚠️ Data Persistence Notice
+POST /cache/sync → manually sync cache with DB service
 
-This MVP uses **in-memory storage**:
+🧪 CURL Testing (Windows CMD)
 
-- Data is **not persisted**
-- Data resets on service restart or redeploy
-- Intended for **API shape validation only**
+Create Product
 
-**Planned upgrades:**
-- PostgreSQL (Render)
-- Multi-tenant support
-- API-key authentication
+curl -X POST https://your-products-service.onrender.com/products -H "Content-Type: application/json" -d "{\"name\":\"T-Shirt\",\"metadata\":{\"brand\":\"Test Brand\"}}"
 
----
 
-## 🧱 Architecture Context
+List Products
 
-This service is part of a larger **ecommerce SaaS** composed of independent microservices:
+curl https://your-products-service.onrender.com/products
 
-- Products Service ✅
-- Variants Service
-- Inventory Service
-- Orders Service
-- Payments Service
-- Webhooks Service
 
-Each service:
-- Owns its data
-- Scales independently
-- Communicates via APIs
+Get Product
 
----
+curl https://your-products-service.onrender.com/products/prod_abcdef1234
 
-## 🔜 Roadmap
 
-- API-key authentication
-- Persistent database (PostgreSQL)
-- Update & delete endpoints
-- OpenAPI / Swagger export
-- Service-to-service integration
+Delete Product
 
----
+curl -X DELETE https://your-products-service.onrender.com/products/prod_abcdef1234
 
-## 📄 License
+⚠️ Data Persistence Notice
+
+Products Service uses in-memory cache → data resets on restart (Render free-tier)
+
+Database Service handles permanent storage (PythonAnywhere SQLite or PostgreSQL)
+
+Background threads handle async persistence with retries
+
+Manual cache sync endpoint /cache/sync ensures consistency
+
+🧱 Architecture Context
+[UI / Frontend] 
+       |
+       | POST /products
+       v
+[Products Service]  ← cache, fast API, async DB persistence
+       |
+       | POST/DELETE → DB Service
+       v
+[Database Service]  ← SQLite / PostgreSQL, persistent storage
+
+
+Microservice pattern: each service owns its data, scales independently, communicates via APIs
+
+🔜 Roadmap
+
+Full PostgreSQL persistence
+
+Multi-tenant support (API keys)
+
+Update / Patch endpoints
+
+Swagger / OpenAPI documentation
+
+Service-to-service integration monitoring
+
+📄 License
 
 MIT License
 
----
+👨‍💻 Author
 
-## 👨‍💻 Author
-
-Built as a **learning + MVP foundation** for an **API-first ecommerce SaaS platform**.
+Built as a learning + MVP foundation for an API-first ecommerce SaaS platform.
