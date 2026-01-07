@@ -160,6 +160,8 @@ Background threads handle async persistence with retries
 
 Manual cache sync endpoint ```/cache/sync``` ensures consistency
 
+---
+
 🧱 Architecture Context
 ```csharp 
 [UI / Frontend] 
