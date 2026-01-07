@@ -82,14 +82,16 @@ Stores product in cache immediately
 
 Persists asynchronously to DB service
 
+---
+
 📄 List Products
-GET /products
+```GET /products```
 
 Optional query parameters:
 
-type → filter by product type
+```type``` → filter by product type
 
-limit → maximum number of products returned (default 100)
+```limit``` → maximum number of products returned (default 100)
 
 Response
 
@@ -104,25 +106,28 @@ Response
   }
 ]
 ```
+---
 
 🔍 Get Product by ID
 ```GET /products/{product_id}```
 
 Looks in cache first, optionally fetches from DB service if missing
 
+---
+
 ❌ Delete Product
 ```DELETE /products/{product_id}```
-
 Deletes from cache immediately
-
 Async deletes from DB service
+
+---
 
 🧪 Cache & Health Endpoints
 ```GET /health → checks service health + DB connectivity```
-
 ```GET /cache/stats → cache statistics and memory usage```
-
 ```POST /cache/sync → manually sync cache with DB service```
+
+---
 
 🧪 CURL Testing (Windows CMD)
 Create Product
@@ -145,7 +150,7 @@ Delete Product
 ```cmd 
 curl -X DELETE https://saas-ecommvp-v1-api-products-service.onrender.com/products/prod_abcdef1234
 ```
-
+---
 ⚠️ Data Persistence Notice
 Products Service uses in-memory cache → data resets on restart (Render free-tier)
 
@@ -153,7 +158,7 @@ Database Service handles permanent storage (PythonAnywhere SQLite or PostgreSQL)
 
 Background threads handle async persistence with retries
 
-Manual cache sync endpoint /cache/sync ensures consistency
+Manual cache sync endpoint ```/cache/sync``` ensures consistency
 
 🧱 Architecture Context
 ```csharp 
@@ -169,6 +174,8 @@ Manual cache sync endpoint /cache/sync ensures consistency
 ```
 Microservice pattern: each service owns its data, scales independently, communicates via APIs
 
+---
+
 🔜 Roadmap
 Full PostgreSQL persistence
 
@@ -179,6 +186,8 @@ Update / Patch endpoints
 Swagger / OpenAPI documentation
 
 Service-to-service integration monitoring
+
+---
 
 📄 License
 MIT License
