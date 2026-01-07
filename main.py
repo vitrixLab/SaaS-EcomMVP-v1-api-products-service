@@ -1,4 +1,5 @@
-from fastapi import FastAPI, BackgroundTasks, HTTPException, status
+from fastapi import FastAPI, BackgroundTasks, HTTPException, status, Request
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from datetime import datetime
 import uuid
@@ -27,7 +28,7 @@ PRODUCTS_CACHE = {}
 DB_SERVICE_URL = "https://vitrixlabph.pythonanywhere.com/api/products"
 
 # Optional: Use environment variable for DB URL (more secure)
-# DB_SERVICE_URL = os.getenv("DB_SERVICE_URL", "https://vitrixlabph.pythonanywhere.com/")
+# DB_SERVICE_URL = os.getenv("DB_SERVICE_URL", "https://vitrixlabph.pythonanywhere.com/api/products")
 
 class ProductCreate(BaseModel):
     name: str
@@ -50,14 +51,15 @@ async def root():
         "deployment": "Render.com",
         "cache_size": len(PRODUCTS_CACHE),
         "db_service": DB_SERVICE_URL,
-        "health_check": f"{request.base_url}health",
+        "health_check": "/health",
         "endpoints": {
             "GET /products": "List all products (from cache)",
             "POST /products": "Create product (cache + async to DB)",
             "GET /products/{id}": "Get product by ID",
             "DELETE /products/{id}": "Delete product",
             "GET /health": "Health check",
-            "GET /cache/stats": "Cache statistics"
+            "GET /cache/stats": "Cache statistics",
+            "POST /cache/sync": "Sync cache with database"
         }
     }
 
@@ -296,16 +298,10 @@ async def startup_event():
     logger.info("🚀 Products Service starting up...")
     logger.info(f"📊 Database Service URL: {DB_SERVICE_URL}")
     logger.info("════════════════════════════════════════════")
-    
-    # Auto-sync on startup (optional)
-    # try:
-    #     await sync_cache()
-    # except Exception as e:
-    #     logger.warning(f"Auto-sync on startup failed: {e}")
 
 # Error handlers
 @app.exception_handler(HTTPException)
-async def http_exception_handler(request, exc):
+async def http_exception_handler(request: Request, exc: HTTPException):
     return JSONResponse(
         status_code=exc.status_code,
         content={"error": exc.detail, "timestamp": datetime.now().isoformat()}
